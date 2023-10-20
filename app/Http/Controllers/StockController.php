@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreStockRequest;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Stock;
@@ -15,30 +16,33 @@ class StockController extends Controller
     public function index()
     {
 
-        $productIds = Product::all()->pluck('id'); // return an array of id form product table
-
-        $totalStock = 0;
-        foreach ($productIds as $productId) {
-            $totalStock = Stock::where('product_id', $productId)->sum('quantity');
-            return response()->json([
-                 'id' => $productId,
-                 'total_stock' => $totalStock,
-            ]);
 
 
-
-        //    $totalStock =  Stock::where('product_id', $productId)->sum('quantity');
-        }
-
-        return $totalStock;
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStockRequest $request)
     {
-        //
+
+        $stock = Stock::create([
+             'user_id' => 1,
+             "product_id" => $request->product_id,
+             "quantity" => $request->quantity,
+
+        ]);
+
+        $totalStock = Stock::where('product_id', $request->product_id)->sum('quantity');
+
+        $product = Product::find($request->product_id);
+        $product->total_stock = $totalStock;
+        $product->save();
+
+        return response()->json([
+            $stock
+        ]);
+
     }
 
     /**
