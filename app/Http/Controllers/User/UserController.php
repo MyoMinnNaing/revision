@@ -5,14 +5,20 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
 
 
-    public function register(Request $request) {
 
+
+    public function register(Request $request)
+    {
+
+        Gate::authorize('register');
         $request->validate([
             "name" => "required|min:3",
             "photo" => "nullable",
@@ -43,6 +49,7 @@ class UserController extends Controller
 
     public function updateRole(Request $request,string $id)
     {
+        Gate::authorize('register');
 
 
           $user = User::find($id);
@@ -64,7 +71,11 @@ class UserController extends Controller
     }
 
 
-    public function ban(string $id) {
+    public function ban(string $id)
+
+    {
+
+        Gate::authorize('register');
 
         $user = User::find($id);
 
