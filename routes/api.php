@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function()   {
      // For ApiAuthController.php
      Route::controller(ApiAuthController::class)->group(function(){
                   Route::post('/logout', 'logout');
+                  Route::post('/change-password', 'changePassword');
                   Route::get('/access-token', 'accessToken');
      });
   });
