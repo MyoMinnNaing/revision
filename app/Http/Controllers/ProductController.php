@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
+use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -11,15 +18,46 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+
+
+        $products = Product::latest('id')->paginate(10)->withQueryString();
+
+
+        return new ProductCollection($products);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        //
+
+       $this->authorize('create',Product::class);
+        $product = Product::create([
+             'name' => $request->name,
+             'actual_price' => $request->actual_price,
+             'sale_price' => $request->sale_price,
+             'brand_id' => $request->brand_id,
+             'total_stock' => $request->total_stock,
+             'photo' => $request->photo,
+             'unit' => $request->unit,
+        ]);
+
+
+        if($request->total_stock > 0) {
+            Stock::create([
+                'user_id' => Auth::user()->id,
+                'product_id' => $product->id,
+                'quantity' => $product->total_stock,
+
+           ]);
+        }
+
+
+
+        // return response()->json($product);
+        return new ProductResource($product);
+
     }
 
     /**
@@ -27,15 +65,40 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::find($id);
+        if (is_null($product)) {
+            abort(404, 'product not found');
+        }
+
+        return new ProductResource($product);
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProductRequest $request, string $id)
     {
-        //
+
+       $this->authorize('update',Product::class);
+        $product = Product::find($id);
+        if (is_null($product)) {
+            abort(404, 'product not found');
+        }
+
+        $product->update([
+            'name' => $request->name,
+            'actual_price' => $request->actual_price,
+            'sale_price' => $request->sale_price,
+            // 'total_stock' => $request->total_stock,
+            'brand_id' => $request->brand_id,
+            'photo' => $request->photo,
+            'unit' => $request->unit,
+        ]);
+
+
+        return new ProductResource($product);
+
     }
 
     /**
@@ -43,6 +106,18 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+
+        $this->authorize('delete',Product::class);
+
+        $product = Product::find($id);
+        if (is_null($product)) {
+            abort(404, 'product not found');
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'message' => 'product has been deleted',
+        ]);
     }
 }

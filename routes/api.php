@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ApiAuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ Route::prefix('v1')->group(function()   {
   Route::middleware('auth:sanctum')->group(function() {
 
     Route::apiResource('stock',StockController::class);
-
+    Route::apiResource('product', ProductController::class);
 
 
      // For ApiAuthController.php
