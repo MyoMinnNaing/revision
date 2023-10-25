@@ -18,11 +18,10 @@ class StockSeeder extends Seeder
 
 
         // Update total_stock of product table depend on quantity of stock table
+
         $productIds = Product::all()->pluck('id'); // return an array of id form product table
         foreach ($productIds as $productId) {
            $totalStock =  Stock::where('product_id', $productId)->sum('quantity'); // sum the column of quantity that specific product_id
-
-
            $product = Product::find($productId);
            $product->total_stock = $totalStock;
            $product->save();
