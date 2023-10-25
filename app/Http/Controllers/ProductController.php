@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductCollection;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
@@ -20,7 +22,8 @@ class ProductController extends Controller
 
         $products = Product::latest('id')->paginate(10)->withQueryString();
 
-        return $products;
+
+        return new ProductCollection($products);
     }
 
     /**
@@ -52,7 +55,9 @@ class ProductController extends Controller
 
 
 
-        return response()->json($product);
+        // return response()->json($product);
+        return new ProductResource($product);
+
     }
 
     /**
@@ -65,7 +70,7 @@ class ProductController extends Controller
             abort(404, 'product not found');
         }
 
-        return $product;
+        return new ProductResource($product);
 
     }
 
@@ -92,7 +97,8 @@ class ProductController extends Controller
         ]);
 
 
-        return $product;
+        return new ProductResource($product);
+
     }
 
     /**
